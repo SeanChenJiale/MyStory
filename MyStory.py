@@ -28,10 +28,8 @@ class Background(pygame.sprite.Sprite):
 # Define the class for our square objects
 class Square(pygame.sprite.Sprite):
 	def __init__(self):
-		super(Square, self).__init__()
-        
-		self.prevmove = " "
-		
+		super(Square, self).__init__()        
+		self.prevmove = " "		
 		# Define the dimension of the surface
 		# Here we are making squares of side 25px
 		self.surf = pygame.Surface((50, 50))
@@ -113,13 +111,7 @@ class player(pygame.sprite.Sprite):
         if keyword == "U":
             xypos[1] -= movement_jump
             return xypos
-        
 
-            
-        
-
-        
-        
 # initialize pygame
 pygame.init()
 
