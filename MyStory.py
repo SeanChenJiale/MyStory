@@ -42,39 +42,38 @@ group = [user,slime1]
 # Variable to keep our game loop running
 gameOn = True
 
-
 # Our game loop
 while gameOn:
-    clock = pygame.time.Clock()
-    
+    clock = pygame.time.Clock()   
     # for loop through the event queue
     for event in pygame.event.get():
 
         if event.type == KEYDOWN:
             # Define where the squares will appear on the screen
             # Use blit to draw them on the screen surface
-            #if right arrow is pressed
-            
+            #if right arrow is pressed       
             if event.key == K_UP and user.location[1] > 0:
                 user.update(0)
                 user.prevmove = "U"
-                user.location[1] -= user.movedist
+                user.move_up()
                 
             if event.key == K_DOWN and user.location[1] < MAPHEIGHT - 50:
                 user.update(1)
                 user.prevmove = "D"
-                user.location[1] += user.movedist
+                user.move_down()
                  
             if event.key == K_LEFT and user.location[0] > 0:
                 user.update(2)     
                 user.prevmove = "L"
-                user.location[0] -= user.movedist
+                user.move_left()
                 
             if event.key == K_RIGHT and user.location[0] < MAPWIDTH - 50:
                 user.update(3)
                 user.prevmove = "R"
-                user.location[0] += user.movedist
-                
+                user.move_right()
+            
+            if event.key == K_c :
+                pass
 			# If the Backspace key has been pressed set
 			# running to false to exit the main loop
             if event.key == K_BACKSPACE:

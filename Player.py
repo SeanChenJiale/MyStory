@@ -15,7 +15,6 @@ class player(pygame.sprite.Sprite):
         ### images is a collection of lists of animations of 4 directions,
         ### in the order, [up],[down],[left],[right]
         self.images = []
-        self.movelist = []
         #adding all the images to sprite array
         self.images.append(
             [pygame.image.load("./Assets/playerasset/player_up1.png"),
@@ -29,15 +28,15 @@ class player(pygame.sprite.Sprite):
         self.images.append(
             [pygame.image.load("./Assets/playerasset/player_right1.png"),
             pygame.image.load("./Assets/playerasset/player_right2.png")])
-        self.imageidle = pygame.image.load("./Assets/playerasset/player_downidle.png")
+        self.image = pygame.image.load("./Assets/playerasset/player_downidle.png")
         #index value to get the image from the array
         #initially it is 0 
         self.index = 0
         #now the image that we will display will be the index from the image array 
-        self.image = self.imageidle
         self.rect = self.image.get_rect()
         self.rect.left, self.rect.top = location
         self.surf = pygame.Surface((50, 50))
+        
     def update(self,direction):
         """ direction is encoded in index up down left right"""
         currImgList = self.images[direction]
@@ -51,23 +50,16 @@ class player(pygame.sprite.Sprite):
         
         #finally we will update the image that will be displayed
         self.image = currImgList[self.index]
-    def position_returner(keyword,xypos,movement_jump):
-        """ Args : keyword, takes in U D L R
         
-        pos : takes in current pos 
+    def move_up(self):
+        self.location[1] -= self.movedist
+
+    def move_down(self):
+        self.location[1] += self.movedist
         
-        movement_jump : is the jump of a singular direction
+    def move_left(self):
+        self.location[0] -= self.movedist
         
-        returns change in position"""
-        if keyword == "L":
-            xypos[0] -= movement_jump
-            return xypos
-        if keyword == "R":
-            xypos[0] += movement_jump
-            return xypos
-        if keyword == "D":
-            xypos[1] += movement_jump
-            return xypos
-        if keyword == "U":
-            xypos[1] -= movement_jump
-            return xypos
+    def move_right(self):
+        self.location[0] += self.movedist
+
