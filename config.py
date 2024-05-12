@@ -9,9 +9,25 @@ import pygame
 MAPWIDTH = 800
 MAPHEIGHT = 600
 
-
+TILESIZE = 50
 
 white = (255, 255, 255)
 green = (0, 255, 0)
 blue = (0, 0, 128)
 
+FPS = 60
+
+tilemap = [
+    'BBBBBBBBBBBBBBBB',
+    'B..............B',
+    'B..............B',
+    'B..............B',
+    'B..............B',
+    'B..............B',
+    'B..............B',
+    'B..............B',
+    'B..............B',
+    'B..............B',
+    'B..............B',
+    'BBBBBBBBBBBBBBBB'    
+    ]

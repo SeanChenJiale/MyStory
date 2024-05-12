@@ -34,7 +34,6 @@ class player(pygame.sprite.Sprite):
         #now the image that we will display will be the index from the image array 
         self.rect = self.image.get_rect()
         self.rect.left, self.rect.top = self.location
-        self.surf = pygame.Surface((50, 50))
         
     def update(self,direction):
         """ direction is encoded in index up down left right"""
