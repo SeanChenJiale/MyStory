@@ -9,9 +9,8 @@ class player(pygame.sprite.Sprite):
     def __init__(self, location,movedist):
         pygame.sprite.Sprite.__init__(self)
         self.movedist = movedist
-        self.prevmove = " "
+        self.facedir = " "
         self.location = location
-        self.user_backgrounder_location = location
         ### images is a collection of lists of animations of 4 directions,
         ### in the order, [up],[down],[left],[right]
         self.images = []
@@ -34,7 +33,7 @@ class player(pygame.sprite.Sprite):
         self.index = 0
         #now the image that we will display will be the index from the image array 
         self.rect = self.image.get_rect()
-        self.rect.left, self.rect.top = location
+        self.rect.left, self.rect.top = self.location
         self.surf = pygame.Surface((50, 50))
         
     def update(self,direction):
@@ -50,16 +49,25 @@ class player(pygame.sprite.Sprite):
         
         #finally we will update the image that will be displayed
         self.image = currImgList[self.index]
+        self.rect = self.image.get_rect()
+        self.rect.left, self.rect.top = self.location
         
-    def move_up(self):
-        self.location[1] -= self.movedist
 
+    def move_up(self):
+
+        self.location[1] -= self.movedist
+        
     def move_down(self):
+
         self.location[1] += self.movedist
         
     def move_left(self):
+
         self.location[0] -= self.movedist
         
     def move_right(self):
-        self.location[0] += self.movedist
 
+        self.location[0] += self.movedist
+    
+
+            

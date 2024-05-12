@@ -9,14 +9,17 @@ from Player import player
 from Slime import slime
 import pygame
 import sys
+from config import *
 # import pygame.locals for easier 
 # access to key coordinates
 from pygame.locals import *
 
-def checkCollision(sprite1, sprite2):
-    col = sprite1.rect.collide_rect(sprite2.rect)
-    if col == True:
-        return True
+
+
+def draw_text(text,font,text_col,x,y):
+    img = font.render(text,True,text_col)
+    screen.blit(img,(x,y))
+
 class Background(pygame.sprite.Sprite):
     def __init__(self, location):
         self.location = location
@@ -27,12 +30,10 @@ class Background(pygame.sprite.Sprite):
 
 # initialize pygame
 pygame.init()
-
-MAPWIDTH = 800
-MAPHEIGHT = 600
+screen = pygame.display.set_mode((MAPWIDTH, MAPHEIGHT))
 slime1_Pos = [400,400]
 # Define the dimensions of screen object
-screen = pygame.display.set_mode((MAPWIDTH, MAPHEIGHT))
+
 bg = Background((0,0))
 # instantiate all square objects
 
@@ -42,10 +43,13 @@ group = [user,slime1]
 # Variable to keep our game loop running
 gameOn = True
 
+tickcounter = 0
 # Our game loop
+clock = pygame.time.Clock()
+
 while gameOn:
-    clock = pygame.time.Clock()   
-    # for loop through the event queue
+# for loop through the event queue
+    
     for event in pygame.event.get():
 
         if event.type == KEYDOWN:
@@ -53,25 +57,63 @@ while gameOn:
             # Use blit to draw them on the screen surface
             #if right arrow is pressed       
             if event.key == K_UP and user.location[1] > 0:
-                user.update(0)
-                user.prevmove = "U"
+                user.facedir = "U"
                 user.move_up()
-                
+                user.update(0)
+                if user.rect.colliderect(slime1.rect):
+                    screen.blit(bg.image,(bg.location))
+                    screen.blit(slime1.images[0][0],slime1.location)
+                    screen.blit(user.image,(user.location))
+                    pygame.display.update()
+                    pygame.time.delay(100)
+                    user.move_down()
+                    user.update(0)
+                    
             if event.key == K_DOWN and user.location[1] < MAPHEIGHT - 50:
-                user.update(1)
-                user.prevmove = "D"
+                user.facedir = "D"
                 user.move_down()
-                 
+                user.update(1)
+
+                if user.rect.colliderect(slime1.rect):
+                    screen.blit(bg.image,(bg.location))
+                    screen.blit(user.image,(user.location))
+                    screen.blit(slime1.images[0][1],slime1.location)
+                    pygame.display.update()
+                    pygame.time.delay(100)
+                    user.move_up()
+                    user.update(1)
+                    
             if event.key == K_LEFT and user.location[0] > 0:
-                user.update(2)     
-                user.prevmove = "L"
+                user.facedir = "L"
                 user.move_left()
-                
+                user.update(2)     
+
+                if user.rect.colliderect(slime1.rect):
+                    screen.blit(bg.image,(bg.location))
+                    screen.blit(slime1.images[0][3],slime1.location)
+                    screen.blit(user.image,(user.location))
+                    pygame.display.update()
+                    pygame.time.delay(100)
+                    user.move_right()
+                    user.update(2)
+
+                    
+                    
             if event.key == K_RIGHT and user.location[0] < MAPWIDTH - 50:
+                user.facedir = "R"
+                user.move_right() 
                 user.update(3)
-                user.prevmove = "R"
-                user.move_right()
-            
+               
+                if user.rect.colliderect(slime1.rect):
+                    screen.blit(bg.image,(bg.location))
+                    screen.blit(slime1.images[0][2],slime1.location)
+                    screen.blit(user.image,(user.location))
+                    pygame.display.update()
+                    pygame.time.delay(100)
+                    user.move_left()
+                    user.update(3)
+                    
+                    
             if event.key == K_c :
                 pass
 			# If the Backspace key has been pressed set
@@ -90,9 +132,10 @@ while gameOn:
         screen.blit(bg.image,(bg.location))
         screen.blit(user.image,(user.location))
         screen.blit(slime1.image,(slime1.location))
+        
         	# Update the display using flip
         pygame.display.update()
-        clock.tick(30)
+        clock.tick(60)
         pygame.display.flip()            
     
 
