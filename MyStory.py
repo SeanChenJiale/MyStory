@@ -8,6 +8,7 @@ Created on Thu May  9 09:11:47 2024
 from Player import player
 from Slime import slime
 from Background import background
+from Block import *
 import pygame
 import sys
 from config import *
@@ -17,137 +18,66 @@ from pygame.locals import *
 
 
 
-def draw_text(text,font,text_col,x,y):
-    img = font.render(text,True,text_col)
-    screen.blit(img,(x,y))
+
 
 class spritesheet:
-    def __init__(self):
-        self.spritesheet = "PLACEHOLDER"
+    def __init__(self,path):
+        self.spritesheet = pygame.image.load(path).convert_alpha()
+    def get_image(self,x,y,width,height):
+        sprite = pygame.Surface([width,height])
+        sprite.blit(self.spritesheet,(0,0),(x,y,width,height))
+        sprite.set_colorkey(black)
+        
+        return sprite #it is returning a surface. 
 class game:
     def __init__(self):
         self.screen = pygame.display.set_mode((MAPWIDTH, MAPHEIGHT))
         self.clock = pygame.time.Clock()
         self.running = True
-    def createTilemap(self):
-        pass
+        self.terrain_spritesheet = spritesheet('./Assets/terrainspritesheet.png')
+    def create_tile_map(self):
+        for i,row in enumerate(tilemap):
+            for j,col in enumerate(row):
+                grass2(self,j,i)
+                match col:                    
+                    case "B":
+                        grass1(self,j,i)
+                    case "1":
+                        tree_tl(self,j,i)
+                    case "2":
+                        tree_tr(self,j,i)                
+                    case "3":
+                        tree_bl(self,j,i)                
+                    case "4":
+                        tree_br(self,j,i)            
+
     
     def create(self):
         # initialize pygame
-        pygame.init()
+        self.all_sprites = pygame.sprite.LayeredUpdates() 
+        self.create_tile_map()
 
-        self.slime1_Pos = [400,400]
-        self.slime2_Pos = [500,500]
-        # Define the dimensions of screen object
-
-        self.bg = background((0,0))
-        # instantiate all square objects
-
-        self.user = player([100,100],25)
-        self.slime1 = slime(self.slime1_Pos)
-        self.slime2 = slime(self.slime2_Pos)
-        self.enemies = [self.slime1,self.slime2]
-        pass
-    
     def update(self):
-        pass
+        self.all_sprites.update() #call update to get all the changes in all sprites
+        # then draw all again.
     
     def events(self):
-        pass
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
     
     def draw(self):
-        pass 
+        self.screen.fill(black)
+        self.all_sprites.draw(self.screen)
+        self.clock.tick(FPS)
+        pygame.display.update()
     
     def main(self):
-         for event in pygame.event.get():
+        while self.running:
+            self.events()
+            self.update()
+            self.draw()
 
-             if event.type == KEYDOWN:
-                 # Define where the squares will appear on the screen
-                 # Use blit to draw them on the screen surface
-                 #if right arrow is pressed       
-                 if event.key == K_UP and self.user.location[1] > 0:
-                     self.user.facedir = "U"
-                     self.user.move_up()
-                     self.user.update(0)
-                     for enemy in self.enemies:
-                         if self.user.rect.colliderect(enemy.rect):
-                             self.screen.blit(self.bg.image,(self.bg.location))
-                             self.screen.blit(self.slime1.images[0][0],self.slime1.location)
-                             self.screen.blit(self.user.image,(self.user.location))
-                             pygame.display.update()
-                             pygame.time.delay(FPS)
-                             self.user.move_down()
-                             self.user.update(0)
-                             
-                 if event.key == K_DOWN and self.user.location[1] < MAPHEIGHT - 50:
-                     self.user.facedir = "D"
-                     self.user.move_down()
-                     self.user.update(1)
-                     for enemy in self.enemies:
-                         if self.user.rect.colliderect(enemy.rect):
-                             self.screen.blit(self.bg.image,(self.bg.location))
-                             self.screen.blit(self.user.image,(self.user.location))
-                             self.screen.blit(self.slime1.images[0][1],self.slime1.location)
-                             pygame.display.update()
-                             pygame.time.delay(FPS)
-                             self.user.move_up()
-                             self.user.update(1)
-                         
-                 if event.key == K_LEFT and self.user.location[0] > 0:
-                     self.user.facedir = "L"
-                     self.user.move_left()
-                     self.user.update(2)     
-                     for enemy in self.enemies:
-                         if self.user.rect.colliderect(enemy.rect):
-                             self.screen.blit(self.bg.image,(self.bg.location))
-                             self.screen.blit(self.slime1.images[0][3],self.slime1.location)
-                             self.screen.blit(self.user.image,(self.user.location))
-                             pygame.display.update()
-                             pygame.time.delay(FPS)
-                             self.user.move_right()
-                             self.user.update(2)
-
-                         
-                         
-                 if event.key == K_RIGHT and self.user.location[0] < MAPWIDTH - 50:
-                     self.user.facedir = "R"
-                     self.user.move_right() 
-                     self.user.update(3)
-                     for enemy in self.enemies:
-                         if self.user.rect.colliderect(enemy.rect):
-                             self.screen.blit(self.bg.image,(self.bg.location))
-                             self.screen.blit(self.slime1.images[0][2],self.slime1.location)
-                             self.screen.blit(self.user.image,(self.user.location))
-                             pygame.display.update()
-                             pygame.time.delay(FPS)
-                             self.user.move_left()
-                             self.user.update(3)
-                             
-                         
-                 if event.key == K_c :
-                     pass
-     			# If the Backspace key has been pressed set
-     			# running to false to exit the main loop
-                 if event.key == K_BACKSPACE:
-                     pygame.quit()
-                     sys.exit()
-                     gameOn = False	
-                 
-         		# Check for QUIT event
-                 elif event.type == QUIT:
-                     pygame.quit()
-                     sys.exit()
-                     gameOn = False
-
-             self.screen.blit(self.bg.image,(self.bg.location))
-             self.screen.blit(self.user.image,(self.user.location))
-             self.screen.blit(self.slime1.image,(self.slime1.location))
-             self.screen.blit(self.slime2.image,(self.slime2.location))
-             	# Update the display using flip
-
-         pygame.display.update()
-         self.clock.tick(FPS)
-         pygame.display.flip()    
 
 
 game = game()
