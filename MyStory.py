@@ -36,19 +36,46 @@ class game:
         self.clock = pygame.time.Clock()
         self.running = True
         self.terrain_spritesheet = spritesheet('./Assets/terrainspritesheet.png')
+        self.player_spritesheet = spritesheet('./Assets/playerasset/playerspritesheet.png')
+        self.slime_spritesheet = spritesheet('./Assets/slime/slimespritesheet.png')
     def create_tile_map(self):
+        for i in range(int(MAPHEIGHT/25)):
+            for j in range(int(MAPWIDTH/25)):
+                texture_gen = randrange(12)
+                match texture_gen:
+                    case 0:
+                        grass3_1(self,j,i)                       
+                    case 1:
+                        grass2_1(self,j,i)
+                    case 2:
+                        grass3_1(self,j,i) 
+                    case 3:
+                        grass3_2(self,j,i) 
+                    case 4:
+                        grass2_1(self,j,i)
+                    case 5:
+                        grass2_2(self,j,i)  
+                    case 6:
+                        grass2_3(self,j,i)  
+                    case 7:
+                        grass2_4(self,j,i)      
+                    case 8:
+                        grass3_1(self,j,i)   
+                    case 9:
+                        grass3_2(self,j,i)
+                    case 10:
+                        grass3_3(self,j,i)   
+                    case 11:
+                        grass3_4(self,j,i)   
         for i,row in enumerate(tilemap):
             for j,col in enumerate(row):
-                texture_gen = str(randrange(3))
-                match texture_gen:
-                    case "0":
-                        grass1(self,j,i)                       
-                    case "1":
-                        grass2(self,j,i)
-                    case "2":
-                        grass3(self,j,i)                       
-                
-                match col:                    
+
+                match col: 
+                    case "S":
+                        self.slime = slime(self,j,i)
+                        
+                    case "P":
+                        self.player = player(self,j,i)
 
                     case "1":
                         tree3x3_1(self, j, i)
@@ -60,26 +87,29 @@ class game:
                         tree3x3_3(self, j, i)
 
                     case "4":
+                        grass1(self, j, i)
                         tree3x3_4(self, j, i)
 
                     case "5":
+                        grass1(self, j, i)
                         tree3x3_5(self, j, i)
 
                     case "6":
+                        grass1(self, j, i)
                         tree3x3_6(self, j, i)
 
                     case "7":
+                        grass1(self, j, i)
                         tree3x3_7(self, j, i)
 
                     case "8":
+                        grass1(self, j, i)
                         tree3x3_8(self, j, i)
 
                     case "9":
+                        grass1(self, j, i)
                         tree3x3_9(self, j, i)
 
-
-
-    
     def create(self):
         # initialize pygame
         self.all_sprites = pygame.sprite.LayeredUpdates() 
@@ -88,10 +118,13 @@ class game:
     def update(self):
         self.all_sprites.update() #call update to get all the changes in all sprites
         # then draw all again.
-    
+             
     def events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                self.running = False
+            pressed = pygame.key.get_pressed()
+            if pressed[pygame.K_p]:
                 self.running = False
     
     def draw(self):
@@ -105,6 +138,7 @@ class game:
             self.events()
             self.update()
             self.draw()
+            self.player.reset()
 
 
 

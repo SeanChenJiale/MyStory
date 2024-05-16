@@ -40,25 +40,90 @@ class grass2(basetile):
         super().__init__(game, x, y)
         self.image = self.game.terrain_spritesheet.get_image(0,50,self.width,self.height)
 
+class grass2_1(grass2):
+    def __init__(self, game, x, y):
+        super().__init__(game, x/2, y/2)
+        self.width = TILESIZE / 2
+        self.height = TILESIZE / 2
+        self.image = self.game.terrain_spritesheet.get_image(0,50,self.width,self.height)
+
+class grass2_2(grass2):
+    def __init__(self, game, x, y):
+        super().__init__(game, x/2, y/2)
+        self.width = TILESIZE / 2
+        self.height = TILESIZE / 2
+        self.image = self.game.terrain_spritesheet.get_image(25,50,self.width,self.height)
+
+class grass2_3(grass2):
+    def __init__(self, game, x, y):
+        super().__init__(game, x/2, y/2)
+        self.width = TILESIZE / 2
+        self.height = TILESIZE / 2
+        self.image = self.game.terrain_spritesheet.get_image(0,75,self.width,self.height)
+
+class grass2_4(grass2):
+    def __init__(self, game, x, y):
+        super().__init__(game, x/2, y/2)
+        self.width = TILESIZE / 2
+        self.height = TILESIZE / 2
+        self.image = self.game.terrain_spritesheet.get_image(25,75,self.width,self.height)
+
 class grass3(basetile):
     def __init__ (self, game, x, y):
         super().__init__(game, x, y)
         self.image = self.game.terrain_spritesheet.get_image(0,100,self.width,self.height)
 
-        
+class grass3_1(grass3):
+    def __init__(self, game, x, y):
+        super().__init__(game, x/2, y/2)
+        self.width = TILESIZE / 2
+        self.height = TILESIZE / 2
+        self.image = self.game.terrain_spritesheet.get_image(0,100,self.width,self.height)
+
+class grass3_2(grass3):
+    def __init__(self, game, x, y):
+        super().__init__(game, x/2, y/2)
+        self.width = TILESIZE / 2
+        self.height = TILESIZE / 2
+        self.image = self.game.terrain_spritesheet.get_image(25,100,self.width,self.height)
+
+class grass3_3(grass3):
+    def __init__(self, game, x, y):
+        super().__init__(game, x/2, y/2)
+        self.width = TILESIZE / 2
+        self.height = TILESIZE / 2
+        self.image = self.game.terrain_spritesheet.get_image(0,125,self.width,self.height)
+
+class grass3_4(grass3):
+    def __init__(self, game, x, y):
+        super().__init__(game, x/2, y/2)
+        self.width = TILESIZE / 2
+        self.height = TILESIZE / 2
+        self.image = self.game.terrain_spritesheet.get_image(25,125,self.width,self.height)
+
 class tree3x3_1(basetile):
+    """
+    Tree arrangement
+    [1,2,3
+     4,5,6
+     7,8,9] 
+    
+    """
     def __init__ (self, game, x, y):
         super().__init__(game, x, y)
+        self._layer = ABOVE_PLAYER
         self.image = self.game.terrain_spritesheet.get_image(50,0,self.width,self.height)
         
 class tree3x3_2(basetile):
     def __init__ (self, game, x, y):
         super().__init__(game, x, y)
+        self._layer = ABOVE_PLAYER
         self.image = self.game.terrain_spritesheet.get_image(100,0,self.width,self.height)
 
 class tree3x3_3(basetile):
     def __init__ (self, game, x, y):
         super().__init__(game, x, y)
+        self._layer = ABOVE_PLAYER
         self.image = self.game.terrain_spritesheet.get_image(150,0,self.width,self.height)
 
 class tree3x3_4(basetile):
