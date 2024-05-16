@@ -113,6 +113,7 @@ class game:
     def create(self):
         # initialize pygame
         self.all_sprites = pygame.sprite.LayeredUpdates() 
+        self.blocks = pygame.sprite.LayeredUpdates()
         self.create_tile_map()
 
     def update(self):
@@ -138,7 +139,6 @@ class game:
             self.events()
             self.update()
             self.draw()
-            self.player.reset()
 
 
 
