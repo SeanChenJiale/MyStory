@@ -8,34 +8,16 @@ import pygame
 from config import *
 
 class player(pygame.sprite.Sprite):
-    def match_attack_ani(self,attackanimationlist):
-        match self.attackcycle:
-            case 0:
-                self.image = attackanimationlist[self.attackcycle]
-                self.attackcycle +=1
-            case 1:
-                self.image = attackanimationlist[self.attackcycle]
-                self.attackcycle +=1
-            case 2:
-                self.image = attackanimationlist[self.attackcycle]
-                self.attackcycle += 1
-            case 3:
-                self.image = attackanimationlist[self.attackcycle - 1] ## delayer
-                self.attackcycle = -1    
-                
     def __init__ (self, game, x, y):
         self.lastattackanimation = 0
-        self.lastwalked = 0
-        self.laststrafed = 0
+        self.lastwalkanimation = 0
         self.lastchangestrafe = 0
-        self.walkcooldown = 100
-        self.strafecooldown = 200
         self.strafechangedelay = 400
         self.attackcooldown = 0
         self.animationdelay = 150
-        self.walkcycle = 0
+        self.walkdelay = 100
+        self.walkcycle = -1
         self.attackcycle = -1
-        self.iswalking = False
         self.isstrafe = False
         self.isidle = True
         self.isattacking = False
@@ -119,16 +101,42 @@ class player(pygame.sprite.Sprite):
                               self.animations_left,
                               self.animations_right
                               ]
+        
+    def match_walk_ani(self,walkanimationlist):
+        match self.walkcycle:
+            case 0:
+                self.image = walkanimationlist[self.walkcycle]
+                self.walkcycle +=1
+
+            case 1:
+                self.image = walkanimationlist[self.walkcycle]
+                self.walkcycle = -1
+
+                
+    def match_attack_ani(self,attackanimationlist):
+        match self.attackcycle:
+            case 0:
+                self.image = attackanimationlist[self.attackcycle]
+                self.attackcycle +=1
+            case 1:
+                self.image = attackanimationlist[self.attackcycle]
+                self.attackcycle +=1
+            case 2:
+                self.image = attackanimationlist[self.attackcycle]
+                self.attackcycle += 1
+            case 3:
+                self.image = attackanimationlist[self.attackcycle - 1] ## delayer
+                self.attackcycle = -1    
+                
     def update(self):
         self.now = pygame.time.get_ticks()
         self.strafe()
         self.attack()   
-        self.move()
-        self.rect.x += self.x_change
-        self.rect.y += self.y_change
+        self.walk()
+        self.walkanimation()
         self.x_change = 0
         self.y_change = 0
-        self.animation()
+        self.attackanimation()
 
     def strafe(self):
         pressed = pygame.key.get_pressed()
@@ -139,139 +147,100 @@ class player(pygame.sprite.Sprite):
                     self.isstrafe = False
                 else:
                     self.isstrafe = True
-    def move(self):
+                    
+    def walk(self):
         pressed = pygame.key.get_pressed()
         if not self.isattacking: 
             ### prevent movement when attacking                
             if self.isstrafe: 
-                if self.now - self.laststrafed >= self.strafecooldown:
-                    self.laststrafed = self.now
-                    if pressed[pygame.K_UP]:
-                        self.iswalking = True
-                        self.y_change -= TILESIZE/2
-                        
-                    elif pressed[pygame.K_DOWN]:
-                        self.iswalking = True
-                        self.y_change += TILESIZE/2   
-        
-                    elif pressed[pygame.K_LEFT]:
-                        self.iswalking = True
-                        self.x_change -= TILESIZE/2
-        
-                    elif pressed[pygame.K_RIGHT]:
-                        self.iswalking = True
-                        self.x_change += TILESIZE/2
-    
-            elif self.now - self.lastwalked >= self.walkcooldown:
-                self.lastwalked = self.now
-                if pressed[pygame.K_UP]:
-                    self.iswalking = True
+                self.laststrafed = self.now
+                if pressed[pygame.K_UP] and self.rect.y > 0:
                     self.y_change -= TILESIZE/2
-                    self.walkcycle += 1
-                    self.direction = 0
-                    
-                elif pressed[pygame.K_DOWN]:
-                    self.iswalking = True
+                elif pressed[pygame.K_DOWN] and self.rect.y < MAPHEIGHT - TILESIZE:
                     self.y_change += TILESIZE/2   
-                    self.walkcycle += 1
-                    self.direction = 1
-                    
-                elif pressed[pygame.K_LEFT]:
-                    self.iswalking = True
+                elif pressed[pygame.K_LEFT] and self.rect.x > 0:
                     self.x_change -= TILESIZE/2
-                    self.walkcycle += 1
-                    self.direction = 2
-                    
-                elif pressed[pygame.K_RIGHT]:
-                    self.iswalking = True
+                elif pressed[pygame.K_RIGHT] and self.rect.x < MAPWIDTH - TILESIZE:
+                    self.x_change += TILESIZE/2  
+            else:
+                self.lastwalked = self.now
+                if pressed[pygame.K_UP] and self.rect.y > 0:
+                    self.y_change -= TILESIZE/2
+                    self.direction = 0               
+                elif pressed[pygame.K_DOWN] and self.rect.y < MAPHEIGHT - TILESIZE:
+                    self.y_change += TILESIZE/2   
+                    self.direction = 1                   
+                elif pressed[pygame.K_LEFT] and self.rect.x > 0:
+                    self.x_change -= TILESIZE/2
+                    self.direction = 2                  
+                elif pressed[pygame.K_RIGHT] and self.rect.x < MAPWIDTH - TILESIZE:
                     self.x_change += TILESIZE/2
-                    self.walkcycle += 1
                     self.direction = 3
-
-    def animation(self):
-        match self.direction:
-            case 0 :
-
-                walkanimationlist = self.animationlist[0][1]
-                attackanimationlist = self.animationlist[0][2]
-                if self.iswalking:
-                    match self.walkcycle:
-                        case 0:
-                            self.image = walkanimationlist[self.walkcycle]
-                            self.walkcycle +=1
-                        case 1:
-                            self.image = walkanimationlist[self.walkcycle]
-                            self.walkcycle = 0
-                elif self.attackcycle >= 0:
-                    if self.now - self.lastattackanimation >= self.animationdelay:
-                        self.lastattackanimation = self.now
+    def walkanimation(self):
+        ### walkcycle is always set to a default value of -1 
+        ### when not walking
+        ### only runs if walk is not -1
+        if not self.isattacking:
+            if self.x_change == 0 or self.y_change == 0:
+                self.image = self.animationlist[self.direction][0][0]
+        if not self.isstrafe:
+            if self.now - self.lastwalkanimation >= self.walkdelay:
+                self.lastwalkanimation = self.now
+                self.rect.x += self.x_change
+                self.rect.y += self.y_change
+                if self.x_change != 0 or self.y_change != 0:
+                    match self.direction:    
+                        case 0 :  
+                            self.match_walk_ani(self.animations_up[1])
+                        case 1 :  
+                            self.match_walk_ani(self.animations_down[1])                                    
+                        case 2 :  
+                            self.match_walk_ani(self.animations_left[1])                
+                        case 3 :  
+                            self.match_walk_ani(self.animations_right[1])
+        elif self.isstrafe:
+            if self.now - self.lastwalkanimation >= self.walkdelay + 50:
+                self.lastwalkanimation = self.now
+                self.rect.x += self.x_change
+                self.rect.y += self.y_change
+                if self.x_change != 0 or self.y_change != 0:
+                    match self.direction:    
+                        case 0 :  
+                            self.match_walk_ani(self.animations_up[1])
+                        case 1 :  
+                            self.match_walk_ani(self.animations_down[1])                                    
+                        case 2 :  
+                            self.match_walk_ani(self.animations_left[1])                
+                        case 3 :  
+                            self.match_walk_ani(self.animations_right[1])
+                                                
+    def attackanimation(self):
+        ### attackcycle is always set to a default value of -1 
+        ### when not attacking
+        ### only runs if attackcycle is not -1
+        if self.attackcycle == -1:
+            pass
+            
+        else: 
+            if self.now - self.lastattackanimation >= self.animationdelay:
+                self.lastattackanimation = self.now
+                match self.direction:
+                    case 0 :
+                        attackanimationlist = self.animationlist[0][2]
                         self.match_attack_ani(attackanimationlist) 
-                else:
-                    self.image = self.animationlist[0][0][0]
-
-                   
-                        
-                    
-                    
-            case 1:
-                walkanimationlist = self.animationlist[1][1]
-                attackanimationlist = self.animationlist[1][2]
-
-                if self.iswalking:
-                    match self.walkcycle:
-                        case 0:
-                            self.image = walkanimationlist[self.walkcycle]
-                            self.walkcycle +=1
-                        case 1:
-                            self.image = walkanimationlist[self.walkcycle]
-                            self.walkcycle = 0
-                elif self.attackcycle >= 0:
-                    if self.now - self.lastattackanimation >= self.animationdelay:
-                        self.lastattackanimation = self.now
-                        self.match_attack_ani(attackanimationlist)
-                else:
-                    self.image = self.animationlist[1][0][0]
              
-            case 2:
-                walkanimationlist = self.animationlist[2][1]
-                attackanimationlist = self.animationlist[2][2]
-                if self.iswalking:
-
-                    match self.walkcycle:
-                        case 0:
-                            self.image = walkanimationlist[self.walkcycle]
-                            self.walkcycle +=1
-                        case 1:
-                            self.image = walkanimationlist[self.walkcycle]
-                            self.walkcycle = 0
-                elif self.attackcycle >= 0:
-                    if self.now - self.lastattackanimation >= self.animationdelay:
-                        self.lastattackanimation = self.now
+                    case 1:
+                        attackanimationlist = self.animationlist[1][2]
+                        self.match_attack_ani(attackanimationlist)
+                     
+                    case 2:
+                        attackanimationlist = self.animationlist[2][2]
                         self.match_attack_ani(attackanimationlist) 
-                else:
-                    self.image = self.animationlist[2][0][0]
-
-                                
-            case 3:
-                walkanimationlist = self.animationlist[3][1]
-                attackanimationlist = self.animationlist[3][2]
-                if self.iswalking:
-
-                    match self.walkcycle:
-                        case 0:
-                            self.image = walkanimationlist[self.walkcycle]
-                            self.walkcycle +=1
-                        case 1:
-                            self.image = walkanimationlist[self.walkcycle]
-                            self.walkcycle = 0
-                elif self.attackcycle >= 0 :
-                    
-                    
-                    if self.now - self.lastattackanimation >= self.animationdelay:
-                        self.lastattackanimation = self.now
-                        self.match_attack_ani(attackanimationlist) 
-                else:
-                    self.image = self.animationlist[3][0][0]
+            
+                    case 3:
+                        attackanimationlist = self.animationlist[3][2]
+                        self.match_attack_ani(attackanimationlist)             
+        
 
     def attack(self):
         pressed = pygame.key.get_pressed()
@@ -286,7 +255,14 @@ class player(pygame.sprite.Sprite):
         else:
             self.isattacking = False
             self.attackcycle = -1
-        self.iswalking = False
+        if self.walkcycle >= 0:
+            pass
+        else:
+            self.x_change = 0
+            self.y_change = 0
+            self.walkcycle = -1
+
+        
                 
                 
             
