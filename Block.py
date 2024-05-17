@@ -4,8 +4,8 @@ Created on Sun May 12 23:33:10 2024
 
 @author: Sean
 """
-import pygame
 from config import *
+
 class basetile(pygame.sprite.Sprite):
     def __init__ (self, game, x, y):
         

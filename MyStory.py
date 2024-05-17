@@ -5,13 +5,12 @@ Created on Thu May  9 09:11:47 2024
 @author: ChenS11
 """
 # import the pygame 
+from config import *
 from Player import player
 from Slime import slime
 from Background import background
 from Block import *
-import pygame
 import sys
-from config import *
 # import pygame.locals for easier 
 # access to key coordinates
 from pygame.locals import *
@@ -109,11 +108,13 @@ class game:
                     case "9":
                         grass1(self, j, i)
                         tree3x3_9(self, j, i)
-
     def create(self):
         # initialize pygame
-        self.all_sprites = pygame.sprite.LayeredUpdates() 
         self.blocks = pygame.sprite.LayeredUpdates()
+        self.enemies = pygame.sprite.LayeredUpdates()
+        self.all_sprites = pygame.sprite.LayeredUpdates() 
+        self.usergroup = pygame.sprite.LayeredUpdates() 
+        
         self.create_tile_map()
 
     def update(self):
@@ -124,9 +125,13 @@ class game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+                pygame.quit()
+                sys.exit()
             pressed = pygame.key.get_pressed()
             if pressed[pygame.K_p]:
                 self.running = False
+                pygame.quit()
+                sys.exit()
     
     def draw(self):
         self.screen.fill(black)
@@ -148,8 +153,7 @@ game.create()
 while game.running:
     game.main()
 
-pygame.quit()
-sys.exit()
+
 
 
 

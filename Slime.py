@@ -4,9 +4,9 @@ Created on Sun May 12 12:39:57 2024
 
 @author: Sean
 """
-import pygame
 from config import *
-import random
+
+
 class slime(pygame.sprite.Sprite):
     def match_walk_ani(self,walkanimationlist):
         match self.walkcycle:
@@ -25,8 +25,14 @@ class slime(pygame.sprite.Sprite):
     def __init__ (self, game, x, y):
         self.slimestep = 25
         self.game = game
-        self._layer = PLAYER_LAYER - 1
-        self.groups = self.game.all_sprites
+        self._layer = PLAYER_LAYER 
+        self.groups = self.game.all_sprites, self.game.enemies
+        
+        self.maxhealth = 100
+        self.currenthealth = 100
+        self.healthbarborder = slime_health_border(game, x, y)
+        self.remaininghealthbar = slime_remaining_health(game, x, y)
+        self.maxhealthbar = slime_max_healthbar(game, x, y) 
         pygame.sprite.Sprite.__init__(self, self.groups)
         
         self.x = x * TILESIZE 
@@ -38,11 +44,16 @@ class slime(pygame.sprite.Sprite):
         self.height = TILESIZE 
         
         self.image = self.game.slime_spritesheet.get_image(0,0,self.width,self.height)
+        self.rect = self.image.get_rect() # able to get x and y coordinates
+        self.rect.x = self.x
+        self.rect.y = self.y
 
         self.lastattackanimation = 0
         self.lastwalkanimation = 0
         self.lastchangestrafe = 0
         self.strafechangedelay = 400
+        self.lastdamagetaken = 0
+        self.invulnerableuntil = 0
         self.attackcooldown = 0
         self.animationdelay = 150 #default animation delay.
         self.walkdelay = 400 # default tick delay.
@@ -50,21 +61,13 @@ class slime(pygame.sprite.Sprite):
         self.walkcycle = -1
         self.attackcycle = -1 # default values 
         self.now = 0 # self.now is a counter to get the current game tick in pygame
-
+        
+        self.isalive = True
         self.isstrafe = False
         self.isidle = True
         self.isattacking = False
-        self.maxheatlh = 100
-        self.currenthealth = 100
         self.attack_value = 10
-        self.x = x * TILESIZE 
-        self.y = y * TILESIZE 
         self.shouldiwalk = ""
-        self.width = TILESIZE 
-        self.height = TILESIZE 
-        self.rect = self.image.get_rect() # able to get x and y coordinates
-        self.rect.x = self.x
-        self.rect.y = self.y
         self.x_change = 0
         self.y_change = 0
 
@@ -164,17 +167,22 @@ class slime(pygame.sprite.Sprite):
                                 self.match_walk_ani(self.animations_left[1])                
                             case 3 :  
                                 self.match_walk_ani(self.animations_right[1])
-                                                        
-    def update(self):
-        self.now = pygame.time.get_ticks()
-        self.walk()
-        self.walkanimation()
-        self.block_collision()
-        self.x_change = 0
-        self.y_change = 0
-        self.action_reset()
+    def checkhp(self):
+        if self.currenthealth <= 0:
+            self.isalive = False 
 
-                    
+            
+    def update(self):
+        if self.isalive:
+            self.checkhp()
+            self.now = pygame.time.get_ticks()
+            self.walk()
+            self.walkanimation()
+            self.block_collision()
+            self.x_change = 0
+            self.y_change = 0
+            self.action_reset()
+        
     def action_reset(self):
         if self.attackcycle >= 0:
             pass
@@ -199,3 +207,71 @@ class slime(pygame.sprite.Sprite):
                 self.rect.x += TILESIZE/2
             if self.direction == 3:
                 self.rect.x -= TILESIZE/2
+                
+
+class slime_health_border(pygame.sprite.Sprite):
+    def __init__ (self, game, x, y):
+        self.game = game
+        self._layer = HEALTH_LAYER
+        self.groups = self.game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        
+        self.x = x * TILESIZE 
+        self.y = y * TILESIZE 
+        
+        self.width = 48
+        self.height = 4
+        
+        self.image = pygame.Surface([self.width,self.height])
+        self.image.fill(darkgrey)
+        
+        self.widthpadding = (TILESIZE - self.width) / 2
+        self.heightpadding = (10 - self.height) / 2
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x + self.widthpadding
+        self.rect.y = self.y + TILESIZE + self.heightpadding
+        
+    def move(self):
+        self.rect.x = self.game.slime.rect.x + self.widthpadding
+        self.rect.y = self.game.slime.rect.y + TILESIZE + self.heightpadding
+    
+    def update(self):
+        self.move()
+        
+class slime_max_healthbar(slime_health_border): ## child class from
+## parent class slime_health_border
+    def __init__ (self, game, x, y):
+        super().__init__(game,x,y)
+        
+        self.width = 44
+        self.height = 2
+        self.padding = (TILESIZE - self.width) / 2
+        self.heightpadding = (10 - self.height) / 2
+        
+        self.image = pygame.Surface([self.width,self.height])
+        self.image.fill(red)
+        
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x + self.widthpadding
+        self.rect.y = self.y + TILESIZE + self.heightpadding
+
+        
+class slime_remaining_health(slime_max_healthbar):
+    ## child class from
+    ## parent class slime_max_healthbar
+    def __init__ (self, game, x, y):
+        super().__init__(game,x,y)
+        self._layer = REMAINING_HEALTH_LAYER
+        self.groups = self.game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        
+        self.image.fill(green)
+    
+    def widthchange(self):
+        self.width = max (44 * (self.game.slime.currenthealth/self.game.slime.maxhealth), 1 )
+        self.image = pygame.Surface([self.width,self.height])
+        self.image.fill(green)
+    def update(self):
+        self.widthchange()
+        self.move()
+        
