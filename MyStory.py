@@ -8,7 +8,6 @@ Created on Thu May  9 09:11:47 2024
 from config import *
 from Player import player
 from Slime import slime
-from Background import background
 from Block import *
 import sys
 # import pygame.locals for easier 
@@ -138,11 +137,28 @@ class game:
         self.all_sprites.draw(self.screen)
         self.clock.tick(FPS)
         pygame.display.update()
-    
+        
+    def camera(self):
+        if not self.player.iscollided:
+            if self.player.iswalking:
+                pressed = pygame.key.get_pressed()
+                for sprite in self.all_sprites:
+                    if pressed[pygame.K_UP]:
+                        sprite.rect.y += self.player.movestep
+                    elif pressed[pygame.K_DOWN]:
+                        sprite.rect.y -= self.player.movestep
+                    elif pressed[pygame.K_LEFT]:
+                        sprite.rect.x += self.player.movestep
+                    elif pressed[pygame.K_RIGHT]:
+                        sprite.rect.x -= self.player.movestep
+                self.player.iswalking = False
+
+            
     def main(self):
         while self.running:
             self.events()
             self.update()
+            # self.camera()
             self.draw()
 
 

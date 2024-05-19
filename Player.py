@@ -8,7 +8,7 @@ from config import *
 from Weapon import *
 class player(pygame.sprite.Sprite):
     def __init__ (self, game, x, y):
-        self.movestep = TILESIZE / 2
+        self.movestep = TILESIZE 
         self.game = game
         self._layer = PLAYER_LAYER
         self.groups = self.game.all_sprites , self.game.usergroup
@@ -17,12 +17,12 @@ class player(pygame.sprite.Sprite):
         self.currenthealth = 100 ## note to put this before the healthbars
         self.lastdamagetaken = 0
         self.invulnerableuntil = 0
-        
+    
+        self.curreqweapon = weapon(game,x,y)
+        pygame.sprite.Sprite.__init__(self, self.groups)
         self.healthbarborder = player_health_border(game, x, y)
         self.remaininghealthbar = player_remaining_health(game, x, y)
         self.maxhealthbar = player_max_healthbar(game, x, y) 
-        self.curreqweapon = weapon(game,x,y)
-        pygame.sprite.Sprite.__init__(self, self.groups)
         
         
         self.lastattackanimation = 0
@@ -31,7 +31,7 @@ class player(pygame.sprite.Sprite):
         self.strafechangedelay = 400
         self.attackcooldown = 0
         self.animationdelay = 150 #default animation delay.
-        self.walkdelay = 100 # default tick delay.
+        self.walkdelay = 225 # default tick delay.
         self.debuffdelay = 0
         self.walkcycle = -1
         self.attackcycle = -1 # default values 
@@ -41,13 +41,15 @@ class player(pygame.sprite.Sprite):
         self.isalive = True
         self.isstrafe = False
         self.isattacking = False
+        self.iswalking = True
+        self.iscollided = False
 
         self.attack_value = 10
-        self.x = x * TILESIZE 
-        self.y = y * TILESIZE 
+        self.x = x * 50
+        self.y = y * 50
 
-        self.width = TILESIZE 
-        self.height = TILESIZE 
+        self.width = 50 
+        self.height = 50 
         
         self.image = self.game.player_spritesheet.get_image(50,0,self.width,self.height)
         self.rect = self.image.get_rect() # able to get x and y coordinates.
@@ -133,7 +135,7 @@ class player(pygame.sprite.Sprite):
         match self.walkcycle:
             case 0:
                 self.image = walkanimationlist[self.walkcycle]
-                self.walkcycle +=1
+                self.walkcycle += 1
 
             case 1:
                 self.image = walkanimationlist[self.walkcycle]
@@ -144,10 +146,10 @@ class player(pygame.sprite.Sprite):
         match self.attackcycle:
             case 0:
                 self.image = attackanimationlist[self.attackcycle]
-                self.attackcycle +=1
+                self.attackcycle += 1
             case 1:
                 self.image = attackanimationlist[self.attackcycle]
-                self.attackcycle +=1
+                self.attackcycle += 1
             case 2:
                 self.image = attackanimationlist[self.attackcycle]
                 self.attackcycle += 1
@@ -198,13 +200,13 @@ class player(pygame.sprite.Sprite):
                 if pressed[pygame.K_UP] and self.rect.y > 0:
                     self.y_change -= self.movestep
                     self.start_walk_cycle()
-                elif pressed[pygame.K_DOWN] and self.rect.y < MAPHEIGHT - TILESIZE:
+                elif pressed[pygame.K_DOWN] and self.rect.y < MAPHEIGHT - self.height:
                     self.y_change += self.movestep
                     self.start_walk_cycle()
                 elif pressed[pygame.K_LEFT] and self.rect.x > 0:
                     self.x_change -= self.movestep
                     self.start_walk_cycle()
-                elif pressed[pygame.K_RIGHT] and self.rect.x < MAPWIDTH - TILESIZE:
+                elif pressed[pygame.K_RIGHT] and self.rect.x < MAPWIDTH - self.width:
                     self.x_change += self.movestep 
                     self.start_walk_cycle()
             else:
@@ -216,7 +218,7 @@ class player(pygame.sprite.Sprite):
                         self.start_walk_cycle()
                 elif pressed[pygame.K_DOWN]:
                     self.direction = 1   
-                    if self.rect.y < MAPHEIGHT - TILESIZE:
+                    if self.rect.y < MAPHEIGHT - self.height:
                         self.y_change += self.movestep   
                         self.start_walk_cycle()
                 elif pressed[pygame.K_LEFT]:
@@ -226,7 +228,7 @@ class player(pygame.sprite.Sprite):
                         self.start_walk_cycle()
                 elif pressed[pygame.K_RIGHT]:
                     self.direction = 3
-                    if self.rect.x < MAPWIDTH - TILESIZE:
+                    if self.rect.x < MAPWIDTH - self.width:
                         self.x_change += self.movestep
                         self.start_walk_cycle()
     def walkanimation(self):
@@ -248,12 +250,16 @@ class player(pygame.sprite.Sprite):
                         match self.direction:    
                             case 0 :  
                                 self.match_walk_ani(self.animations_up[1])
+                                self.iswalking = True
                             case 1 :  
-                                self.match_walk_ani(self.animations_down[1])                                    
+                                self.match_walk_ani(self.animations_down[1])      
+                                self.iswalking = True
                             case 2 :  
-                                self.match_walk_ani(self.animations_left[1])                
+                                self.match_walk_ani(self.animations_left[1])
+                                self.iswalking = True
                             case 3 :  
                                 self.match_walk_ani(self.animations_right[1])
+                                self.iswalking = True
             elif self.isstrafe:
                 if self.now - self.lastwalkanimation >= self.walkdelay + 50 + self.debuffdelay:
                     self.lastwalkanimation = self.now
@@ -263,12 +269,16 @@ class player(pygame.sprite.Sprite):
                         match self.direction:    
                             case 0 :  
                                 self.match_walk_ani(self.animations_up[1])
-                            case 1 :  
-                                self.match_walk_ani(self.animations_down[1])                                    
+                                self.iswalking = True
+                            case 1 :
+                                self.match_walk_ani(self.animations_down[1])
+                                self.iswalking = True                                    
                             case 2 :  
-                                self.match_walk_ani(self.animations_left[1])                
+                                self.match_walk_ani(self.animations_left[1])
+                                self.iswalking = True
                             case 3 :  
                                 self.match_walk_ani(self.animations_right[1])
+                                self.iswalking = True
                                                     
     def attackanimation(self):
         ### attackcycle is always set to a default value of -1 
@@ -322,6 +332,7 @@ class player(pygame.sprite.Sprite):
         pressed = pygame.key.get_pressed()
         collide = pygame.sprite.spritecollide(self,self.game.blocks, False) ## last argument is for block to disappear.
         if collide:
+            self.iscollided = True
             #### changing elifs to ifs give an amazing interaction when approacting from the left and right of things.
             if pressed[pygame.K_UP]:
                 self.rect.y += self.movestep
@@ -331,17 +342,20 @@ class player(pygame.sprite.Sprite):
                 self.rect.x += self.movestep
             elif pressed[pygame.K_RIGHT]:
                 self.rect.x -= self.movestep
-
+        else:
+            self.iscollided = False
     def collide_enemy(self):
         pressed = pygame.key.get_pressed()
         collide = pygame.sprite.spritecollide(self,self.game.enemies, False) ## last argument is for block to disappear.
         for enemy in collide:
+            
             if self.now > self.invulnerableuntil:
                 self.currenthealth -= enemy.attack_value
                 self.lastdamagetaken = self.now
                 self.invulnerableuntil = self.lastdamagetaken + 1000
         if collide:
             #### changing elifs to ifs give an amazing interaction when approacting from the left and right of things.
+            self.iscollided = True
             if pressed[pygame.K_UP]:
                 self.rect.y += self.movestep
             elif pressed[pygame.K_DOWN]:
@@ -350,7 +364,8 @@ class player(pygame.sprite.Sprite):
                 self.rect.x += self.movestep
             elif pressed[pygame.K_RIGHT]:
                 self.rect.x -= self.movestep
-                
+        else:
+            self.iscollided = False
 class player_health_border(pygame.sprite.Sprite):
     def __init__ (self, game, x, y):
         self.game = game
@@ -358,8 +373,8 @@ class player_health_border(pygame.sprite.Sprite):
         self.groups = self.game.all_sprites
         pygame.sprite.Sprite.__init__(self, self.groups)
         
-        self.x = x * TILESIZE 
-        self.y = y * TILESIZE 
+        self.x = x * 50 
+        self.y = y * 50 
         
         self.width = 48
         self.height = 4
@@ -367,15 +382,15 @@ class player_health_border(pygame.sprite.Sprite):
         self.image = pygame.Surface([self.width,self.height])
         self.image.fill(darkgrey)
         
-        self.widthpadding = (TILESIZE - self.width) / 2
+        self.widthpadding = (50 - self.width) / 2
         self.heightpadding = (10 - self.height) / 2
         self.rect = self.image.get_rect()
         self.rect.x = self.x + self.widthpadding
-        self.rect.y = self.y + TILESIZE + self.heightpadding
+        self.rect.y = self.y + 50 + self.heightpadding
         
     def move(self):
         self.rect.x = self.game.player.rect.x + self.widthpadding
-        self.rect.y = self.game.player.rect.y + TILESIZE + self.heightpadding
+        self.rect.y = self.game.player.rect.y + 50 + self.heightpadding
     
     def update(self):
         self.move()
@@ -387,7 +402,7 @@ class player_max_healthbar(player_health_border): ## child class from
         
         self.width = 44
         self.height = 2
-        self.padding = (TILESIZE - self.width) / 2
+        self.padding = (50 - self.width) / 2
         self.heightpadding = (10 - self.height) / 2
         
         self.image = pygame.Surface([self.width,self.height])
@@ -395,7 +410,7 @@ class player_max_healthbar(player_health_border): ## child class from
         
         self.rect = self.image.get_rect()
         self.rect.x = self.x + self.widthpadding
-        self.rect.y = self.y + TILESIZE + self.heightpadding
+        self.rect.y = self.y + 50 + self.heightpadding
 
         
 class player_remaining_health(player_max_healthbar):
