@@ -37,8 +37,8 @@ class game:
         self.player_spritesheet = spritesheet('./Assets/playerasset/playerspritesheet.png')
         self.slime_spritesheet = spritesheet('./Assets/slime/slimespritesheet.png')
     def create_tile_map(self):
-        for i in range(int(MAPHEIGHT/25)):
-            for j in range(int(MAPWIDTH/25)):
+        for i in range(int(60)):
+            for j in range(int(60)):
                 texture_gen = randrange(12)
                 match texture_gen:
                     case 0:
@@ -139,6 +139,7 @@ class game:
         pygame.display.update()
         
     def camera(self):
+        
         if not self.player.iscollided:
             if self.player.iswalking:
                 pressed = pygame.key.get_pressed()
@@ -158,7 +159,7 @@ class game:
         while self.running:
             self.events()
             self.update()
-            # self.camera()
+            self.camera()
             self.draw()
 
 
@@ -168,11 +169,3 @@ game.create()
 
 while game.running:
     game.main()
-
-
-
-
-
-        
-    
-

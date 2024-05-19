@@ -16,8 +16,8 @@ class weapon (pygame.sprite.Sprite):
         self.width = 50
         self.height = 50
         
-        self.x = x * 50 
-        self.y = y * 50 
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
         
         self.weaponrange = 50/2
         self.image = pygame.Surface([self.width,self.height])

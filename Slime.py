@@ -31,12 +31,12 @@ class slime(pygame.sprite.Sprite):
         self.maxhealth = 100
         self.currenthealth = 100
         self.healthbarborder = slime_health_border(game, x, y)
-        self.remaininghealthbar = slime_remaining_health(game, x, y)
         self.maxhealthbar = slime_max_healthbar(game, x, y) 
+        self.remaininghealthbar = slime_remaining_health(game, x, y)
         pygame.sprite.Sprite.__init__(self, self.groups)
         
-        self.x = x * 50 
-        self.y = y * 50 
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
         
         self.direction = random.choice([0,1,2,3])
         
@@ -229,8 +229,8 @@ class slime_health_border(pygame.sprite.Sprite):
         self.groups = self.game.all_sprites
         pygame.sprite.Sprite.__init__(self, self.groups)
         
-        self.x = x * 50 
-        self.y = y * 50 
+        self.x = x * TILESIZE 
+        self.y = y * TILESIZE
         
         self.width = 48
         self.height = 4
@@ -275,11 +275,11 @@ class slime_remaining_health(slime_max_healthbar):
     def __init__ (self, game, x, y):
         super().__init__(game,x,y)
         self._layer = REMAINING_HEALTH_LAYER
-        self.groups = self.game.all_sprites
-        pygame.sprite.Sprite.__init__(self, self.groups)
         
         self.image.fill(green)
-    
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x + self.widthpadding
+        self.rect.y = self.y + 50 + self.heightpadding
     def widthchange(self):
         self.width = max (44 * (self.game.slime.currenthealth/self.game.slime.maxhealth), 1 )
         self.image = pygame.Surface([self.width,self.height])

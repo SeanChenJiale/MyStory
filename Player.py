@@ -21,8 +21,8 @@ class player(pygame.sprite.Sprite):
         self.curreqweapon = weapon(game,x,y)
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.healthbarborder = player_health_border(game, x, y)
-        self.remaininghealthbar = player_remaining_health(game, x, y)
         self.maxhealthbar = player_max_healthbar(game, x, y) 
+        self.remaininghealthbar = player_remaining_health(game, x, y)
         
         
         self.lastattackanimation = 0
@@ -31,7 +31,7 @@ class player(pygame.sprite.Sprite):
         self.strafechangedelay = 400
         self.attackcooldown = 0
         self.animationdelay = 150 #default animation delay.
-        self.walkdelay = 225 # default tick delay.
+        self.walkdelay = 175 # default tick delay.
         self.debuffdelay = 0
         self.walkcycle = -1
         self.attackcycle = -1 # default values 
@@ -45,9 +45,8 @@ class player(pygame.sprite.Sprite):
         self.iscollided = False
 
         self.attack_value = 10
-        self.x = x * 50
-        self.y = y * 50
-
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
         self.width = 50 
         self.height = 50 
         
@@ -373,8 +372,8 @@ class player_health_border(pygame.sprite.Sprite):
         self.groups = self.game.all_sprites
         pygame.sprite.Sprite.__init__(self, self.groups)
         
-        self.x = x * 50 
-        self.y = y * 50 
+        self.x = x * TILESIZE 
+        self.y = y * TILESIZE
         
         self.width = 48
         self.height = 4
@@ -417,13 +416,14 @@ class player_remaining_health(player_max_healthbar):
     ## child class from
     ## parent class player_max_healthbar
     def __init__ (self, game, x, y):
-        super().__init__(game,x,y)
+        super().__init__(game, x, y)
         self._layer = REMAINING_HEALTH_LAYER
-        self.groups = self.game.all_sprites
-        pygame.sprite.Sprite.__init__(self, self.groups)
         
+        self.image = pygame.Surface([self.width,self.height])
         self.image.fill(green)
-    
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x + self.widthpadding
+        self.rect.y = self.y + 50 + self.heightpadding
     def widthchange(self):
         self.width = max (44 * (self.game.player.currenthealth/self.game.player.maxhealth), 1 )
         self.image = pygame.Surface([self.width,self.height])
