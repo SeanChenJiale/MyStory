@@ -1,3 +1,3 @@
 # MyStory
 RPGGame
-### Also learning how to use Github
+Fork or clone this repo. requirements.txt was not included. 
